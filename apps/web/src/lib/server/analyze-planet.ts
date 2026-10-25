@@ -6,8 +6,8 @@ export type AnalyzePlanetEnv = {
   GEMINI_MODEL?: string
 }
 
-const DEFAULT_GEMINI_MODEL = "gemini-flash-latest"
-const GEMINI_MODEL_FALLBACKS = ["gemini-2.5-flash-lite", "gemini-3-flash-preview"] as const
+const DEFAULT_GEMINI_MODEL = "gemini-flash-lite-latest"
+const GEMINI_MODEL_FALLBACKS = ["gemini-3-flash-preview", "gemini-flash-latest"] as const
 
 class GeminiApiError extends Error {
   constructor(
@@ -143,7 +143,7 @@ function createGeminiPrompt(formattedData: any): string {
     .map(([key, value]) => `${key}: ${value}`)
     .join(', ')
 
-  return `You are an expert exoplanet scientist. Analyze this exoplanet data and determine if it represents a confirmed exoplanet. Respond with ONLY the JSON format below, no additional text.
+  return `You are an expert exoplanet scientist. Analyze this exoplanet data and determine if it represents a confirmed exoplanet. Respond with ONLY the JSON format below, no additional text. Keep each feature explanation to one short sentence.
 
 Data: ${dataString}
 
@@ -196,7 +196,8 @@ async function callGeminiAPI(prompt: string, env: AnalyzePlanetEnv): Promise<any
             temperature: 0.1,
             topK: 1,
             topP: 0.8,
-            maxOutputTokens: 4096,
+            maxOutputTokens: 1024,
+            responseMimeType: "application/json",
           },
         }),
       },
@@ -230,7 +231,11 @@ function parseGeminiResponse(geminiResponse: any): any {
     console.log('Gemini response received')
     
     // Extract the text content from Gemini response
-    const textContent = geminiResponse.candidates?.[0]?.content?.parts?.[0]?.text
+    const parts = geminiResponse.candidates?.[0]?.content?.parts ?? []
+    const textContent = parts
+      .map((part: { text?: string }) => part.text)
+      .filter(Boolean)
+      .join("")
     
     if (!textContent) {
       console.log('No text content found. Full response structure:', JSON.stringify(geminiResponse, null, 2))

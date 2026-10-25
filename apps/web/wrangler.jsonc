@@ -6,6 +6,6 @@
   "compatibility_flags": ["nodejs_compat"],
   "vars": {
     "FRONTEND_ORIGIN": "https://riniann9.github.io",
-    "GEMINI_MODEL": "gemini-flash-latest"
+    "GEMINI_MODEL": "gemini-flash-lite-latest"
   }
 }

@@ -1,7 +1,7 @@
 import { apiUrl, isStaticDemo } from "@/lib/deployment"
 import type { AnalysisResult } from "@/types/analysis"
 
-const ANALYZE_TIMEOUT_MS = 120_000
+const ANALYZE_TIMEOUT_MS = 45_000
 
 export async function fetchPlanetAnalysis(body: {
   planetData: unknown

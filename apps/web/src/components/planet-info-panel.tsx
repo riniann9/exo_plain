@@ -95,7 +95,7 @@ export function PlanetInfoPanel({ planet, onClose }: PlanetInfoPanelProps) {
             </div>
             <h3 className="text-xl font-bold text-white mb-3">AI Detection Required</h3>
             <p className="text-cyan-200 max-w-sm text-sm mb-8">
-              Run a Gemini-powered scan (may take up to 2 minutes). Results open on the same page as Predict New Data.
+              Run a Gemini-powered scan on this planet. Results open on the same page as Predict New Data.
             </p>
 
             <Button
