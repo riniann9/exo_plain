@@ -1,9 +1,10 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "exoplanet-predictor",
+  "name": "exo-plain-api",
   "pages_build_output_dir": "./out",
   "compatibility_date": "2026-10-24",
-  "compatibility_flags": [
-    "nodejs_compat"
-  ]
+  "compatibility_flags": ["nodejs_compat"],
+  "vars": {
+    "FRONTEND_ORIGIN": "https://riniann9.github.io"
+  }
 }
