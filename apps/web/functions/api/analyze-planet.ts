@@ -1,2 +1,2 @@
-import { POST } from '../../src/lib/server/analyze-planet'
-export const onRequestPost = ({ request, env }: { request: Request; env: { GEMINI_API_KEY?: string } }) => POST(request, env)
+import { POST, type AnalyzePlanetEnv } from '../../src/lib/server/analyze-planet'
+export const onRequestPost = ({ request, env }: { request: Request; env: AnalyzePlanetEnv }) => POST(request, env)

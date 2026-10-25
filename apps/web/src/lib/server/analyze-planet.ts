@@ -1,7 +1,33 @@
 
 import { geminiFeatureToRow } from "@/lib/analysis/format-gemini-feature"
 
-export async function POST(request: Request, env: { GEMINI_API_KEY?: string }) {
+export type AnalyzePlanetEnv = {
+  GEMINI_API_KEY?: string
+  GEMINI_MODEL?: string
+}
+
+const DEFAULT_GEMINI_MODEL = "gemini-flash-latest"
+const GEMINI_MODEL_FALLBACKS = ["gemini-2.5-flash-lite", "gemini-3-flash-preview"] as const
+
+class GeminiApiError extends Error {
+  constructor(
+    readonly status: number,
+    readonly body: string,
+    readonly model: string,
+    message?: string,
+  ) {
+    super(message ?? `Gemini API error: ${status} (model: ${model})`)
+    this.name = "GeminiApiError"
+  }
+}
+
+function getGeminiModelChain(primary?: string): string[] {
+  const first = primary?.trim() || DEFAULT_GEMINI_MODEL
+  const fallbacks = GEMINI_MODEL_FALLBACKS.filter((m) => m !== first)
+  return [first, ...fallbacks]
+}
+
+export async function POST(request: Request, env: AnalyzePlanetEnv) {
   try {
     const body = await request.json()
     const { planetData, catalogFeatures, planetName } = body
@@ -14,14 +40,24 @@ export async function POST(request: Request, env: { GEMINI_API_KEY?: string }) {
     const prompt = createGeminiPrompt(formattedData)
     
     // Call Gemini API
-    const geminiResponse = await callGeminiAPI(prompt, env.GEMINI_API_KEY)
+    const geminiResponse = await callGeminiAPI(prompt, env)
     
     // Parse and format the response
     const analysisResult = parseGeminiResponse(geminiResponse)
     
     return Response.json(analysisResult)
   } catch (error) {
-    console.error('Error analyzing planet:', error)
+    if (error instanceof GeminiApiError) {
+      console.error("Gemini API failed:", {
+        status: error.status,
+        model: error.model,
+        body: error.body.slice(0, 2000),
+      })
+    } else if (error instanceof Error) {
+      console.error("Error analyzing planet:", error.message)
+    } else {
+      console.error("Error analyzing planet:", error)
+    }
     return Response.json(
       { error: 'Failed to analyze planet data' },
       { status: 500 }
@@ -139,39 +175,54 @@ Required JSON format (respond with exactly this structure):
 }`
 }
 
-async function callGeminiAPI(prompt: string, apiKey?: string): Promise<any> {
-  
-  
+async function callGeminiAPI(prompt: string, env: AnalyzePlanetEnv): Promise<any> {
+  const apiKey = env.GEMINI_API_KEY
   if (!apiKey) {
-    throw new Error('GEMINI_API_KEY environment variable is not set')
+    throw new Error("GEMINI_API_KEY environment variable is not set")
   }
 
-  const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=${apiKey}`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      contents: [{
-        parts: [{
-          text: prompt
-        }]
-      }],
-      generationConfig: {
-        temperature: 0.1,
-        topK: 1,
-        topP: 0.8,
-        maxOutputTokens: 4096,
-      }
-    })
-  })
+  const models = getGeminiModelChain(env.GEMINI_MODEL)
+  let lastFailure: GeminiApiError | null = null
 
-  if (!response.ok) {
-    throw new Error(`Gemini API error: ${response.status} ${response.statusText}`)
+  for (const model of models) {
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: {
+            temperature: 0.1,
+            topK: 1,
+            topP: 0.8,
+            maxOutputTokens: 4096,
+          },
+        }),
+      },
+    )
+
+    if (response.ok) {
+      console.log(`Gemini generateContent succeeded (model: ${model})`)
+      return response.json()
+    }
+
+    const body = await response.text()
+    const err = new GeminiApiError(response.status, body, model)
+
+    if (response.status === 404 || response.status === 503) {
+      console.warn(`Gemini model unavailable (${response.status}), trying fallback`, {
+        model,
+        body: body.slice(0, 500),
+      })
+      lastFailure = err
+      continue
+    }
+
+    throw err
   }
 
-  const data = await response.json()
-  return data
+  throw lastFailure ?? new GeminiApiError(503, "No models available", models[0] ?? DEFAULT_GEMINI_MODEL)
 }
 
 function parseGeminiResponse(geminiResponse: any): any {
