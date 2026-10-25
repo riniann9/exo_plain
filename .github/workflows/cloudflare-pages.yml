@@ -33,6 +33,9 @@ jobs:
         run: npm run build
       - name: Verify Cloudflare token (Pages access)
         run: npx wrangler pages project list
+      - name: Ensure Cloudflare Pages project exists
+        run: |
+          npx wrangler pages project create exo-plain-api --production-branch=main 2>/dev/null || true
       - name: Deploy to Cloudflare Pages
         run: npx wrangler pages deploy out --project-name=exo-plain-api --commit-dirty=true
       - name: Publish Gemini secret on Cloudflare Pages
