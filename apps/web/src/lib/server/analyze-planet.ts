@@ -1,14 +1,14 @@
 
-import { parseFeatureText } from "@/lib/parse-feature-text"
+import { geminiFeatureToRow } from "@/lib/analysis/format-gemini-feature"
 
 export async function POST(request: Request, env: { GEMINI_API_KEY?: string }) {
   try {
     const body = await request.json()
-    const { planetData } = body
+    const { planetData, catalogFeatures, planetName } = body
     if (!planetData || typeof planetData !== "object" || Array.isArray(planetData)) return Response.json({ error: "planetData must be an object" }, { status: 400 })
 
     // Format the data for Gemini analysis
-    const formattedData = formatPlanetDataForGemini(planetData)
+    const formattedData = formatPlanetDataForGemini(planetData, catalogFeatures, planetName)
     
     // Create the prompt for Gemini
     const prompt = createGeminiPrompt(formattedData)
@@ -29,17 +29,22 @@ export async function POST(request: Request, env: { GEMINI_API_KEY?: string }) {
   }
 }
 
-function formatPlanetDataForGemini(planetData: any) {
+function formatPlanetDataForGemini(planetData: any, catalogFeatures?: Record<string, unknown>, planetName?: string) {
+  const catalog = catalogFeatures ?? {}
   // Format Kepler dataset fields for Gemini analysis
   return {
-    "Orbital Period [days]": planetData.orbital_period || "Unknown",
+    "Target Name": planetName || "Unknown",
+    "Orbital Period [days]": planetData.orbital_period || catalog.orbital_period || "Unknown",
     "Transit Epoch [BKJD]": planetData.transit_epoch || "Unknown",
     "Impact Parameter": planetData.impact_parameter || "Unknown",
     "Transit Duration [hrs]": planetData.transit_duration || "Unknown",
     "Transit Depth [ppm]": planetData.transit_depth || "Unknown",
-    "Planetary Radius [Earth radii]": planetData.planetary_radius || "Unknown",
-    "Equilibrium Temperature [K]": planetData.equilibrium_temperature || "Unknown",
-    "Insolation Flux [Earth flux]": planetData.insolation_flux || "Unknown",
+    "Planetary Radius [Earth radii]": planetData.planetary_radius || catalog.planet_radius || "Unknown",
+    "Equilibrium Temperature [K]": planetData.equilibrium_temperature || catalog.equilibrium_temperature || "Unknown",
+    "Insolation Flux [Earth flux]": planetData.insolation_flux || catalog.insolation_flux || "Unknown",
+    "Habitability index (catalog demo)": catalog.habitability_score ?? "Unknown",
+    "Atmospheric / composition note (catalog)": catalog.atmospheric_composition ?? "Unknown",
+    "Detection method (catalog)": catalog.detection_method ?? "Unknown",
     "Transit Signal-to-Noise": planetData.transit_snr || "Unknown",
     "TCE Planet Number": planetData.tce_planet_number || "Unknown",
     "Stellar Effective Temperature [K]": planetData.stellar_effective_temperature || "Unknown",
@@ -210,34 +215,11 @@ function parseGeminiResponse(geminiResponse: any): any {
       })
       .filter(Boolean)
 
-    const relevanceScore = (relevance: string) => {
-      const r = relevance.toLowerCase()
-      if (r.includes("very high") || r.includes("critical")) return 92
-      if (r.includes("high")) return 82
-      if (r.includes("medium") || r.includes("moderate")) return 68
-      return 55
-    }
-
     return {
       isExoplanet: analysis.answer === true,
       confidence: analysis.answer ? 88 : 22,
       explanation: `Gemini classified this target as ${analysis.answer ? "an exoplanet candidate" : "unlikely to be an exoplanet"} using ${features.length || 0} highlighted features.${featureSummaries.length ? ` Key points: ${featureSummaries.join(" · ")}` : ""}`,
-      topFeatures: features.map((feature: Record<string, string>, index: number) => {
-        const nameKey = Object.keys(feature).find((key) => key !== "Relevance")
-        const raw =
-          (nameKey ? feature[nameKey] : "") ||
-          (Object.values(feature).find((v) => typeof v === "string" && v !== feature.Relevance) as string) ||
-          ""
-        const { name, description } = parseFeatureText(String(raw))
-        const relevanceLabel = String(feature.Relevance ?? "").trim()
-        return {
-          name: name || `Indicator ${index + 1}`,
-          impact: relevanceScore(relevanceLabel),
-          value: relevanceLabel || "Analyzed",
-          reasoning: description || String(raw),
-          relevanceLabel: relevanceLabel || undefined,
-        }
-      }),
+      topFeatures: features.map((feature: Record<string, string>, index: number) => geminiFeatureToRow(feature, index)),
       geminiAnalysis: analysis,
     }
   } catch (error) {

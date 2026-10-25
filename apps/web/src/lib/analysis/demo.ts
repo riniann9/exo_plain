@@ -1,4 +1,5 @@
 import type { AnalysisResult } from "@/types/analysis"
+import { buildTopFeaturesFromCatalog } from "@/lib/analysis/top-features-from-catalog"
 
 function parseNum(value: unknown, fallback = 0): number {
   const n = Number.parseFloat(String(value ?? ""))
@@ -62,53 +63,16 @@ export function analyzePlanetData(planetData: unknown, source: string, planetNam
     ? `${label} shows a coherent exoplanet-like profile: ${sizeClass}, ${tempClass}, and ${orbitalPeriod.toFixed(1)}-day orbit. ${atmosphere !== "unknown atmosphere" ? `Atmospheric context: ${atmosphere}.` : ""} Insolation ${insolation || "n/a"}× Earth flux and equilibrium temperature ${equilibriumTemp || "n/a"} K support a ${detectionMethod}-consistent interpretation${hasRings ? " with a ring system" : ""}. Habitability score ${habitabilityScore.toFixed(2)} is a demonstration ranking, not a NASA disposition.`
     : `${label} deviates from typical confirmed exoplanet patterns in this demonstration model (radius ${planetRadius || "n/a"} R⊕, period ${orbitalPeriod || "n/a"} days, habitability ${habitabilityScore.toFixed(2)}). Treat as inconclusive until live model and FITS analysis are connected.`
 
-  const topFeatures = [
-    {
-      name: "Habitability Score",
-      impact: Math.round(Math.min(95, habitabilityScore * 100)),
-      value: habitabilityScore.toFixed(2),
-      reasoning: "Composite demo score from catalog or form inputs",
-    },
-    {
-      name: "Planetary Radius",
-      impact: Math.round(Math.min(92, planetRadius * 28)),
-      value: `${planetRadius || "—"} Earth radii`,
-      reasoning: `Supports ${sizeClass} classification`,
-    },
-    {
-      name: "Orbital Period",
-      impact: Math.round(Math.min(88, orbitalPeriod * 2)),
-      value: `${orbitalPeriod || "—"} days`,
-      reasoning: "Orbit period anchors transit timing and stellar distance estimates",
-    },
-    {
-      name: "Equilibrium Temperature",
-      impact: Math.round(Math.min(84, Math.max(40, 300 - Math.abs(equilibriumTemp - 260)) * 0.25)),
-      value: `${equilibriumTemp || "—"} K`,
-      reasoning: tempClass,
-    },
-    {
-      name: "Detection Method",
-      impact: 78,
-      value: detectionMethod,
-      reasoning: "Discovery method informs confidence in the planetary interpretation",
-    },
-  ]
-
-  if (semiMajor > 0) {
-    topFeatures.push({
-      name: "Semi-Major Axis",
-      impact: 70,
-      value: `${semiMajor} AU`,
-      reasoning: "Orbital distance drives insolation and equilibrium temperature",
-    })
-  }
+  const topFeatures = buildTopFeaturesFromCatalog(
+    { ...features, detection_method: detectionMethod, atmospheric_composition: atmosphere },
+    label,
+  )
 
   return {
     isExoplanet,
     confidence,
     explanation,
-    topFeatures: topFeatures.slice(0, 5),
+    topFeatures,
     planetData,
     source,
   }

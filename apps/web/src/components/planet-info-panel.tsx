@@ -31,7 +31,11 @@ export function PlanetInfoPanel({ planet, onClose }: PlanetInfoPanelProps) {
         const response = await fetch(apiUrl("/api/analyze-planet"), {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ planetData: planetFormData }),
+          body: JSON.stringify({
+            planetData: planetFormData,
+            catalogFeatures: planet.features,
+            planetName: planet.name,
+          }),
         })
         if (response.ok) {
           const analysisResult = await response.json()

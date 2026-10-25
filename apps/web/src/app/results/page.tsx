@@ -12,34 +12,19 @@ import { buildPollinationsPlanetImageUrl } from "@/components/planet-image-utils
 
 import type { AnalysisResult } from "@/types/analysis"
 import { analyzePlanetData } from "@/lib/analysis/demo"
-import { parseFeatureText } from "@/lib/parse-feature-text"
-
-function relevanceScore(relevance: string): number {
-  const r = relevance.toLowerCase()
-  if (r.includes("very high") || r.includes("critical")) return 92
-  if (r.includes("high")) return 82
-  if (r.includes("medium") || r.includes("moderate")) return 68
-  return 55
-}
+import { geminiFeatureToRow } from "@/lib/analysis/format-gemini-feature"
 
 function normalizeAnalysisResult(analysis: AnalysisResult): AnalysisResult {
+  if (analysis.topFeatures?.length && !analysis.geminiAnalysis?.most_important_features?.length) {
+    return analysis
+  }
   if (!analysis.geminiAnalysis?.most_important_features?.length) {
     return analysis
   }
 
-  const topFeatures = analysis.geminiAnalysis.most_important_features.map((feature, index) => {
-    const nameKey = Object.keys(feature).find((key) => key !== "Relevance")
-    const raw = nameKey ? String(feature[nameKey as keyof typeof feature]) : ""
-    const { name, description } = parseFeatureText(raw)
-    const relevanceLabel = String(feature.Relevance ?? "").trim()
-    return {
-      name: name || `Indicator ${index + 1}`,
-      impact: relevanceScore(relevanceLabel),
-      value: relevanceLabel || "Analyzed",
-      reasoning: description || raw,
-      relevanceLabel: relevanceLabel || undefined,
-    }
-  })
+  const topFeatures = analysis.geminiAnalysis.most_important_features.map((feature, index) =>
+    geminiFeatureToRow(feature as Record<string, string>, index),
+  )
 
   return { ...analysis, topFeatures }
 }
@@ -133,7 +118,11 @@ function ResultsContent() {
       </div>
 
       <div className="relative z-10 container mx-auto px-4 py-8 max-w-7xl">
-        {!searchParams.get("analysisResult") && <p role="status" className="mb-6 rounded-lg border border-amber-500/40 bg-amber-500/10 p-4 text-sm">Demonstration results — simulated classification and confidence. These are not live AI or FITS model predictions.</p>}
+        {!result.geminiAnalysis && (
+          <p role="status" className="mb-6 rounded-lg border border-amber-500/40 bg-amber-500/10 p-4 text-sm">
+            Demonstration results — feature impacts are derived from catalog parameters, not live Gemini or FITS model outputs.
+          </p>
+        )}
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <Link href="/">
@@ -318,13 +307,19 @@ function ResultsContent() {
                     </Badge>
                     <div className="flex-1">
                       <h3 className="font-semibold text-base text-foreground mb-1">{feature.name}</h3>
-                      {feature.value !== undefined && feature.value !== "" && !feature.relevanceLabel && (
-                        <p className="text-xs text-muted-foreground mb-2">Measured value: {feature.value}</p>
+                      {feature.value !== undefined && feature.value !== "" && (
+                        <p className="text-xs text-muted-foreground mb-2">
+                          <span className="font-medium text-foreground/80">Value:</span> {feature.value}
+                        </p>
                       )}
                       <p className="text-sm text-foreground leading-relaxed mb-2">{feature.reasoning}</p>
-                      <p className={`text-sm font-medium ${relevanceColor}`}>
-                        <span className="font-semibold">Relevance:</span> {relevanceText}
-                      </p>
+                      <div className="flex flex-wrap items-center gap-2 text-sm">
+                        <Progress value={feature.impact} className="h-2 flex-1 min-w-[120px]" />
+                        <p className={`font-medium ${relevanceColor}`}>
+                          <span className="font-semibold">{feature.relevanceLabel ? "Relevance:" : "Demo weight:"}</span>{" "}
+                          {relevanceText}
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
