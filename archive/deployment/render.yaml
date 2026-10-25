@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: exoplanet-predictor
+    env: node
+    plan: free
+    buildCommand: cd exoplanet-predictor && npm install && npm run build
+    startCommand: cd exoplanet-predictor && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: GEMINI_API_KEY
+        sync: false
+    healthCheckPath: /
+    autoDeploy: true
+    branch: main
+    rootDir: exoplanet-predictor

@@ -1,0 +1,26 @@
+# Dependencies and generated build files anywhere in the repository
+node_modules
+.next/
+.open-next/
+.wrangler/
+out/
+build/
+coverage/
+__pycache__/
+*.pyc
+*.tsbuildinfo
+next-env.d.ts
+.DS_Store
+Thumbs.db
+npm-debug.log*
+
+# Credentials and local configuration
+.env
+.env.*
+!.env.example
+.dev.vars*
+!.dev.vars.example
+*.pem
+
+# Local historical Cloudflare tooling, preserved but not published
+/archive/local-cloudflare/

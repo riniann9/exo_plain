@@ -1,0 +1,612 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A0 research poster for ExoPlain, an interactive explainable AI platform for exoplanet discovery.">
+  <title>ExoPlain — AIAS+ 2026 Student Showcase Poster</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --ink: #f5f7ff;
+      --muted: #b8c5df;
+      --cyan: #71e6f2;
+      --blue: #7eb4ff;
+      --violet: #c2a1ff;
+      --panel: rgba(12, 24, 52, .88);
+      --line: rgba(139, 180, 255, .28);
+      --paper: #071021;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      background: #030916;
+      color: var(--ink);
+      font-family: Inter, "Aptos", "Segoe UI", Arial, sans-serif;
+    }
+
+    body {
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .toolbar {
+      width: min(100%, 1200px);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: #c3d3ec;
+      font-size: 14px;
+    }
+
+    .toolbar button {
+      padding: 10px 15px;
+      border: 1px solid rgba(113, 230, 242, .55);
+      border-radius: 9px;
+      color: #071021;
+      background: var(--cyan);
+      font: inherit;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .poster {
+      position: relative;
+      isolation: isolate;
+      overflow: hidden;
+      width: min(100%, 1200px);
+      aspect-ratio: 841 / 1189;
+      padding: 3.1%;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25%;
+      background:
+        radial-gradient(ellipse at 14% 3%, rgba(30, 124, 176, .26), transparent 26%),
+        radial-gradient(ellipse at 95% 15%, rgba(111, 69, 186, .25), transparent 28%),
+        linear-gradient(160deg, #09152c 0%, #071021 45%, #0b1026 100%);
+      box-shadow: 0 24px 90px rgba(0, 0, 0, .5);
+    }
+
+    .poster::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      opacity: .55;
+      background-image:
+        radial-gradient(1px 1px at 9% 8%, #fff 98%, transparent),
+        radial-gradient(1px 1px at 28% 13%, #9defff 98%, transparent),
+        radial-gradient(2px 2px at 76% 8%, #fff 98%, transparent),
+        radial-gradient(1px 1px at 91% 23%, #fff 98%, transparent),
+        radial-gradient(1px 1px at 61% 31%, #b9cfff 98%, transparent),
+        radial-gradient(1px 1px at 12% 44%, #fff 98%, transparent),
+        radial-gradient(2px 2px at 86% 53%, #9defff 98%, transparent),
+        radial-gradient(1px 1px at 36% 67%, #fff 98%, transparent),
+        radial-gradient(1px 1px at 7% 82%, #b9cfff 98%, transparent),
+        radial-gradient(1px 1px at 94% 91%, #fff 98%, transparent);
+      pointer-events: none;
+    }
+
+    .hero {
+      flex: 0 0 19%;
+      position: relative;
+      padding: 2.2% 2.5%;
+      border: 1px solid rgba(113, 230, 242, .38);
+      border-radius: 26px;
+      background: linear-gradient(120deg, rgba(12, 42, 72, .9), rgba(29, 20, 61, .78));
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .eyebrow, .section-kicker {
+      color: var(--cyan);
+      text-transform: uppercase;
+      letter-spacing: .15em;
+      font-weight: 800;
+    }
+
+    .eyebrow { font-size: 19px; }
+
+    h1 {
+      margin: 12px 0 5px;
+      max-width: 1080px;
+      font-size: clamp(47px, 5.1vw, 66px);
+      line-height: 1.02;
+      letter-spacing: -.035em;
+    }
+
+    .subtitle {
+      max-width: 920px;
+      color: #d8e6ff;
+      font-size: 27px;
+      line-height: 1.25;
+      margin: 12px 0 18px;
+    }
+
+    .byline {
+      color: var(--muted);
+      font-size: 18px;
+      margin-top: 4px;
+    }
+
+    .tag-row {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .tag {
+      border: 1px solid rgba(194, 161, 255, .56);
+      border-radius: 999px;
+      padding: 7px 12px;
+      color: #e6d7ff;
+      background: rgba(106, 67, 155, .2);
+      font-size: 14px;
+      font-weight: 750;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+    }
+
+    .thesis {
+      flex: 0 0 7%;
+      display: grid;
+      grid-template-columns: 1fr 3fr;
+      gap: 18px;
+      align-items: center;
+      padding: 1.2% 2%;
+      border-left: 6px solid var(--cyan);
+      border-radius: 14px;
+      background: rgba(15, 39, 64, .82);
+    }
+
+    .thesis-label {
+      color: var(--cyan);
+      text-transform: uppercase;
+      font-size: 17px;
+      font-weight: 800;
+      letter-spacing: .11em;
+    }
+
+    .thesis p {
+      margin: 0;
+      font-size: 23px;
+      line-height: 1.3;
+      font-weight: 650;
+    }
+
+    .columns {
+      flex: 1 1 auto;
+      min-height: 0;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25%;
+    }
+
+    .column {
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 2%;
+    }
+
+    .card {
+      padding: 2.4% 3%;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: var(--panel);
+    }
+
+    .motivation { flex: 0 0 23%; }
+    .workflow { flex: 0 0 37%; }
+    .methods { flex: 1 1 auto; }
+    .prototype { flex: 0 0 27%; }
+    .outcomes { flex: 0 0 27%; }
+    .limits { flex: 1 1 auto; }
+
+    h2 {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 0 0 14px;
+      color: #eaf6ff;
+      font-size: 25px;
+      line-height: 1.1;
+    }
+
+    h2 .number {
+      width: 31px;
+      height: 31px;
+      border-radius: 50%;
+      display: inline-grid;
+      place-items: center;
+      color: #06111f;
+      background: var(--cyan);
+      font-size: 16px;
+      font-weight: 900;
+      flex: 0 0 auto;
+    }
+
+    p, li {
+      color: #d5deef;
+      font-size: 17px;
+      line-height: 1.42;
+    }
+
+    p { margin: 0 0 10px; }
+    ul, ol { margin: 8px 0 0; padding-left: 21px; }
+    li { margin: 0 0 7px; }
+    strong { color: #fff; }
+
+    .question {
+      margin: 13px 0 0;
+      padding: 12px 14px;
+      color: #edebff;
+      border-radius: 11px;
+      background: rgba(118, 86, 185, .18);
+      font-size: 17px;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+
+    .mini-label {
+      color: var(--blue);
+      font-size: 14px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+    }
+
+    .flow {
+      display: grid;
+      grid-template-columns: 1fr 30px 1fr 30px 1fr;
+      align-items: stretch;
+      gap: 4px;
+      margin: 14px 0 16px;
+    }
+
+    .flow-step {
+      min-height: 98px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      border: 1px solid rgba(113, 230, 242, .36);
+      border-radius: 12px;
+      background: rgba(12, 53, 73, .42);
+      text-align: center;
+    }
+
+    .flow-step b {
+      color: var(--cyan);
+      font-size: 16px;
+      margin-bottom: 5px;
+    }
+
+    .flow-step span {
+      color: #d5deef;
+      font-size: 13px;
+      line-height: 1.3;
+    }
+
+    .arrow {
+      align-self: center;
+      color: var(--violet);
+      text-align: center;
+      font-size: 24px;
+      font-weight: 900;
+    }
+
+    .chart {
+      width: 100%;
+      height: 152px;
+      margin: 5px 0;
+      border: 1px solid rgba(126, 180, 255, .25);
+      border-radius: 12px;
+      background: rgba(5, 14, 30, .62);
+    }
+
+    .caption {
+      color: #aebbd2;
+      font-size: 13px;
+      line-height: 1.3;
+      text-align: center;
+    }
+
+    .pill-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin: 12px 0;
+    }
+
+    .pill {
+      padding: 6px 9px;
+      border-radius: 999px;
+      border: 1px solid rgba(126, 180, 255, .34);
+      color: #cfe6ff;
+      background: rgba(33, 67, 112, .28);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .callout {
+      padding: 12px 14px;
+      margin-top: 10px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 205, 113, .42);
+      background: rgba(104, 69, 23, .18);
+      color: #ffe3ac;
+      font-size: 15px;
+      line-height: 1.38;
+    }
+
+    .callout b { color: #ffe3ac; }
+
+    .good {
+      border-color: rgba(113, 230, 242, .4);
+      background: rgba(12, 78, 82, .2);
+      color: #cefaff;
+    }
+
+    .good b { color: #aaf4ff; }
+
+    .bottom {
+      flex: 0 0 9%;
+      display: grid;
+      grid-template-columns: 2.4fr 1fr;
+      align-items: center;
+      gap: 2%;
+      padding: 1.3% 2%;
+      border: 1px solid rgba(194, 161, 255, .38);
+      border-radius: 18px;
+      background: linear-gradient(100deg, rgba(37, 30, 74, .85), rgba(12, 36, 59, .82));
+    }
+
+    .takeaway {
+      font-size: 19px;
+      font-weight: 700;
+      line-height: 1.4;
+    }
+
+    .next {
+      color: #ded3ff;
+      font-size: 15px;
+      line-height: 1.4;
+    }
+
+    .next b {
+      display: block;
+      color: var(--violet);
+      font-size: 14px;
+      letter-spacing: .1em;
+      margin-bottom: 5px;
+      text-transform: uppercase;
+    }
+
+    .sources {
+      color: #94a4c0;
+      font-size: 12px;
+      line-height: 1.32;
+      margin-top: 8px;
+    }
+
+    @media (max-width: 760px) {
+      body { padding: 0; }
+      .toolbar { padding: 12px 16px; }
+      .poster {
+        width: 100%;
+        min-height: 100vh;
+        aspect-ratio: auto;
+        padding: 20px;
+        gap: 14px;
+        overflow: visible;
+      }
+      .hero, .thesis, .columns, .bottom { flex: initial; }
+      .hero { min-height: 230px; padding: 24px; }
+      .tag-row { position: static; margin-bottom: 15px; }
+      h1 { font-size: 52px; }
+      .subtitle { font-size: 21px; }
+      .thesis { grid-template-columns: 1fr; padding: 16px; }
+      .thesis p { font-size: 19px; }
+      .columns { grid-template-columns: 1fr; }
+      .column { gap: 12px; }
+      .card { padding: 19px; }
+      .bottom { grid-template-columns: 1fr; padding: 18px; }
+      p, li { font-size: 16px; }
+    }
+
+    @media print {
+      @page {
+        size: A0 portrait;
+        margin: 0;
+      }
+      html, body {
+        width: 841mm;
+        height: 1189mm;
+        padding: 0;
+        gap: 0;
+        background: var(--paper);
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+      }
+      .toolbar { display: none; }
+      .poster {
+        width: 841mm;
+        height: 1189mm;
+        max-width: none;
+        aspect-ratio: auto;
+        padding: 25mm;
+        gap: 9mm;
+        box-shadow: none;
+      }
+      .hero { flex-basis: 19%; }
+      .thesis { flex-basis: 7%; }
+      .bottom { flex-basis: 9%; }
+      .card, .hero, .thesis, .bottom { break-inside: avoid; }
+      .eyebrow { font-size: 27px; }
+      h1 { max-width: 2350px; font-size: 92px; margin: 24px 0 12px; }
+      .subtitle { max-width: 2100px; font-size: 38px; margin: 22px 0 26px; }
+      .byline { font-size: 26px; }
+      .tag { padding: 12px 18px; font-size: 20px; }
+      .thesis-label { font-size: 24px; }
+      .thesis p { font-size: 34px; }
+      .column { gap: 2.2%; }
+      .card { padding: 3.2% 3.5%; }
+      h2 { gap: 16px; margin-bottom: 22px; font-size: 40px; }
+      h2 .number { width: 46px; height: 46px; font-size: 23px; }
+      p, li { font-size: 25px; line-height: 1.48; }
+      p { margin-bottom: 16px; }
+      li { margin-bottom: 12px; }
+      .question { margin-top: 20px; padding: 18px 20px; font-size: 24px; }
+      .mini-label { font-size: 20px; }
+      .flow { grid-template-columns: 1fr 45px 1fr 45px 1fr; gap: 7px; margin: 22px 0 24px; }
+      .flow-step { min-height: 150px; padding: 16px; }
+      .flow-step b { font-size: 24px; margin-bottom: 8px; }
+      .flow-step span { font-size: 20px; line-height: 1.35; }
+      .arrow { font-size: 38px; }
+      .caption { font-size: 19px; }
+      .chart { height: 245px; margin: 12px 0; }
+      .pill-list { gap: 11px; margin: 18px 0; }
+      .pill { padding: 9px 13px; font-size: 19px; }
+      .callout { padding: 18px 20px; margin-top: 16px; font-size: 22px; }
+      .takeaway { font-size: 29px; }
+      .next { font-size: 22px; }
+      .next b { font-size: 20px; }
+      .sources { font-size: 17px; margin-top: 12px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="toolbar">
+    <button type="button" onclick="window.print()">Print / Save as PDF</button>
+    <span>Vertical A0 research poster · 841 × 1189 mm (33.1 × 46.8 in)</span>
+  </div>
+  <main class="poster">
+    <header class="hero">
+      <div class="tag-row">
+        <span class="tag">AI for Science</span>
+        <span class="tag">AIAS⁺ Student Showcase</span>
+      </div>
+      <div class="eyebrow">Planet Pioneers · AIAS+ 2026 Student Showcase</div>
+      <h1>ExoPlain: An Interactive, Explainable AI Platform for Exoplanet Discovery</h1>
+      <p class="subtitle">An accessible workflow that connects exoplanet measurements with rapid, plain-language AI explanations.</p>
+      <div class="byline">Planet Pioneers · Student research team · NASA Space Apps Challenge 2025</div>
+    </header>
+
+    <section class="thesis" aria-label="Research question">
+      <div class="thesis-label">Research question</div>
+      <p>How might an interactive AI tool help students explore exoplanet evidence without confusing an AI-generated explanation with a scientific confirmation?</p>
+    </section>
+
+    <div class="columns">
+      <div class="column">
+        <section class="card motivation">
+          <h2><span class="number">1</span>Why this project?</h2>
+          <p>Exoplanet discovery draws on complex signals: a planet passing in front of a star can produce a small, repeating dip in the star's measured brightness. The data are fascinating, but the parameters and classification process can be difficult for new learners to interpret.</p>
+          <p><strong>Goal:</strong> build an approachable learning experience that connects candidate measurements to plain-language explanations and interactive exploration.</p>
+          <div class="question">The design challenge: make the science easier to explore without presenting an unvalidated AI guess as a discovery.</div>
+        </section>
+
+        <section class="card workflow">
+          <h2><span class="number">2</span>How the prototype works</h2>
+          <div class="mini-label">Two related paths—not one validated classifier</div>
+          <div class="flow" aria-label="Prototype workflow">
+            <div class="flow-step"><b>Explore</b><span>Browse example planets in an interactive 3D galaxy map</span></div>
+            <div class="arrow" aria-hidden="true">›</div>
+            <div class="flow-step"><b>Enter</b><span>Submit Kepler-style transit and stellar measurements</span></div>
+            <div class="arrow" aria-hidden="true">›</div>
+            <div class="flow-step"><b>Explain</b><span>Gemini API returns a generated classification and feature summary</span></div>
+          </div>
+          <div class="flow" aria-label="Separate light curve model exploration">
+            <div class="flow-step"><b>Upload</b><span>Optional FITS light-curve upload in the web prototype</span></div>
+            <div class="arrow" aria-hidden="true">›</div>
+            <div class="flow-step"><b>Analyze</b><span>Python service is intended to extract signal features</span></div>
+            <div class="arrow" aria-hidden="true">›</div>
+            <div class="flow-step"><b>Experiment</b><span>Separate Python scripts explore supervised models</span></div>
+          </div>
+          <p class="caption">The web app's Gemini analysis and the Python TESS model experiments are separate paths in the current codebase.</p>
+        </section>
+
+        <section class="card methods">
+          <h2><span class="number">3</span>Data &amp; methods</h2>
+          <ul>
+            <li><strong>Web prototype:</strong> Next.js / TypeScript interface for orbital, transit, planetary, stellar, and observational inputs.</li>
+            <li><strong>AI explanation:</strong> the server sends submitted measurements to Gemini and requests a structured answer with important features.</li>
+            <li><strong>Light-curve experiments:</strong> the Python project includes preprocessing and multiple model experiments (including CNN, LSTM, random-forest, and MLP approaches).</li>
+            <li><strong>Sequence input:</strong> the training scripts use 2,048-point light-curve inputs; one training path uses an 80/20 train-validation split and augmentation.</li>
+          </ul>
+          <div class="pill-list" aria-label="Example input measurements">
+            <span class="pill">Orbital period</span><span class="pill">Transit depth</span>
+            <span class="pill">Transit duration</span><span class="pill">Planet radius</span>
+            <span class="pill">Stellar temperature</span><span class="pill">Light curve</span>
+          </div>
+          <div class="callout"><b>Data note:</b> project documentation reports 7,638 TESS light curves for a CNN experiment. Dataset provenance, label definitions, and split-level counts should be verified before treating that number as a reproducible study result.</div>
+        </section>
+      </div>
+
+      <div class="column">
+        <section class="card prototype">
+          <h2><span class="number">4</span>What the prototype demonstrates</h2>
+          <p>The codebase brings together a space-themed interface, a 3D example-planet explorer, structured candidate-data entry, a Gemini-powered explanation route, and optional FITS upload UI.</p>
+          <p>Its central contribution at this stage is <strong>an educational interaction design</strong>: moving from measurements to a readable explanation, while showing where a learner should ask further questions.</p>
+          <svg class="chart" viewBox="0 0 600 155" role="img" aria-label="Illustrative transit light curve showing a dip in measured brightness">
+            <defs>
+              <linearGradient id="curve" x1="0" x2="1">
+                <stop offset="0" stop-color="#71e6f2"/>
+                <stop offset="1" stop-color="#c2a1ff"/>
+              </linearGradient>
+            </defs>
+            <line x1="65" y1="20" x2="65" y2="120" stroke="#8393b2" stroke-width="2"/>
+            <line x1="65" y1="120" x2="570" y2="120" stroke="#8393b2" stroke-width="2"/>
+            <line x1="65" y1="57" x2="570" y2="57" stroke="#55708f" stroke-width="1" stroke-dasharray="7 7"/>
+            <path d="M70 54 L115 56 L160 52 L205 58 L245 55 L280 58 L305 67 L325 94 L350 104 L374 91 L396 65 L421 57 L460 54 L510 58 L565 55"
+              fill="none" stroke="url(#curve)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+            <text x="317" y="143" fill="#b8c5df" font-size="14" text-anchor="middle">Time →</text>
+            <text x="25" y="78" fill="#b8c5df" font-size="13" text-anchor="middle" transform="rotate(-90 25 78)">Relative brightness</text>
+            <text x="350" y="92" fill="#71e6f2" font-size="13">transit-like dip</text>
+          </svg>
+          <div class="caption">Conceptual sketch only; not a measured light curve or model output from this project.</div>
+        </section>
+
+        <section class="card outcomes">
+          <h2><span class="number">5</span>Current findings</h2>
+          <ul>
+            <li><strong>Built:</strong> an interactive web prototype with data-entry, example exploration, and AI-explanation components.</li>
+            <li><strong>Explored:</strong> several Python machine-learning architectures and preprocessing workflows for light-curve classification.</li>
+            <li><strong>Not established:</strong> the available project materials do not provide an independently reproducible, held-out accuracy evaluation for the complete user-facing system.</li>
+          </ul>
+          <div class="callout good"><b>Interpretation:</b> this is a prototype and model-development project—not evidence that Exo-Plain can confirm planets or outperform expert review.</div>
+        </section>
+
+        <section class="card limits">
+          <h2><span class="number">6</span>Limitations &amp; next steps</h2>
+          <ul>
+            <li><strong>Confidence is not calibrated:</strong> the Gemini response is converted to fixed 85% / 15% confidence in the current API code.</li>
+            <li><strong>Fallbacks can be simulated:</strong> FITS analysis may return randomized demo features when the Python service is unavailable.</li>
+            <li><strong>Need a rigorous benchmark:</strong> verify labels and provenance, prevent target leakage with a documented split, then report accuracy, precision, recall, F1, and a confusion matrix.</li>
+            <li><strong>Improve scientific safeguards:</strong> separate candidate triage from confirmation, cite the source data, expose uncertainty, and test explanations with students and astronomy mentors.</li>
+          </ul>
+        </section>
+      </div>
+    </div>
+
+    <footer class="bottom">
+      <div>
+        <div class="mini-label">Take-home message</div>
+        <div class="takeaway">AI can make exoplanet data more approachable, while trustworthy science still requires verified labels, reproducible evaluation, calibrated uncertainty, and human expertise.</div>
+        <div class="sources">Project sources: ExoPlain Next.js application and API routes; ExoplanetWebsiteFiles Python training scripts and README; NASA Space Apps Challenge 2025 project page.</div>
+      </div>
+      <div class="next"><b>Next milestone</b>Audit the dataset, run a reproducible benchmark, and revise the interface to communicate uncertainty clearly.<br><br>Project: spaceappschallenge.org/2025/find-a-team/planet-pioneers2/</div>
+    </footer>
+  </main>
+</body>
+</html>

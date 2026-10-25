@@ -1,0 +1,351 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ExoPlain - AIAS+ 2026 Technical Poster</title>
+  <style>
+    :root {
+      --navy: #0a2c46;
+      --navy2: #123c59;
+      --teal: #009bb5;
+      --cyan: #16bfd0;
+      --ice: #eaf5f8;
+      --ink: #122b3d;
+      --muted: #486273;
+      --line: #bdd6de;
+      --gold: #d88a18;
+      --paper: #ffffff;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; background: #dfe8ed; color: var(--ink); font-family: Inter, Aptos, "Segoe UI", Arial, sans-serif; }
+    body { padding: 18px; }
+    .toolbar { width: min(96vw, 1280px); margin: 0 auto 14px; display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
+    .toolbar button { border: 0; border-radius: 7px; padding: 10px 16px; background: var(--teal); color: white; font-weight: 800; cursor: pointer; }
+    .poster {
+      width: min(96vw, 1280px);
+      aspect-ratio: 841 / 1189;
+      margin: auto;
+      padding: 2.35%;
+      background: var(--paper);
+      border-top: 10px solid var(--teal);
+      box-shadow: 0 18px 60px rgba(13, 42, 60, .25);
+      display: flex;
+      flex-direction: column;
+      gap: 1.05%;
+      overflow: hidden;
+    }
+    .kicker { color: var(--teal); font-size: 14px; font-weight: 850; letter-spacing: .06em; text-transform: uppercase; }
+    .hero { flex: 0 0 12.4%; display: grid; grid-template-columns: 1fr 150px; gap: 20px; }
+    h1 { margin: 8px 0 5px; max-width: 1030px; font-size: 44px; line-height: 1.03; letter-spacing: -.025em; color: var(--navy); }
+    .subtitle { margin: 8px 0 13px; color: var(--teal); font-size: 21px; line-height: 1.2; font-weight: 750; }
+    .authors { padding: 10px 12px; background: var(--ice); border-left: 5px solid var(--teal); font-size: 15px; line-height: 1.35; }
+    .brand { align-self: start; text-align: right; }
+    .brand .mark { color: var(--navy); font-size: 39px; font-weight: 900; letter-spacing: -.04em; }
+    .brand .event { color: var(--teal); font-size: 13px; font-weight: 850; line-height: 1.25; }
+
+    .visual-strip { flex: 0 0 15%; display: grid; grid-template-columns: 1.05fr 1fr 1fr 1fr; gap: 8px; }
+    .visual { position: relative; overflow: hidden; min-height: 0; background: var(--ice); border: 1px solid #d7e6eb; }
+    .visual img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .visual span { position: absolute; inset: auto 0 0 0; padding: 8px 10px; background: rgba(7, 39, 61, .9); color: white; font-size: 13px; font-weight: 750; line-height: 1.2; }
+
+    .main { flex: 1 1 auto; min-height: 0; display: grid; grid-template-columns: 1.08fr .92fr; gap: 1.15%; }
+    .col { min-height: 0; display: flex; flex-direction: column; gap: 1.15%; }
+    .section { border: 1px solid var(--line); background: white; }
+    .section-title { margin: 0; padding: 8px 12px; background: var(--navy); color: white; font-size: 20px; line-height: 1.1; display: flex; align-items: center; gap: 11px; }
+    .section-title .num { color: var(--cyan); font-weight: 900; }
+    .section-body { padding: 11px 13px 12px; }
+    p { margin: 0 0 8px; font-size: 15px; line-height: 1.38; }
+    ul { margin: 5px 0 0; padding-left: 20px; }
+    li { margin-bottom: 5px; font-size: 14.5px; line-height: 1.35; }
+    strong { color: var(--navy); }
+    .intro { flex: 0 0 12%; }
+    .pipeline { flex: 0 0 21%; }
+    .methods { flex: 1 1 auto; }
+    .architecture { flex: 0 0 19%; }
+    .explain { flex: 0 0 20%; }
+    .evidence { flex: 0 0 20%; }
+    .validation { flex: 1 1 auto; }
+
+    .question { margin-top: 8px; padding: 9px 11px; background: var(--ice); border-left: 4px solid var(--teal); color: var(--navy); font-size: 14.5px; font-weight: 750; }
+    .pipeline-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 7px; align-items: stretch; }
+    .step { position: relative; padding: 10px 8px; min-height: 97px; background: var(--ice); border-top: 4px solid var(--teal); }
+    .step:not(:last-child)::after { content: "›"; position: absolute; right: -8px; top: 33px; z-index: 2; color: var(--teal); font-size: 26px; font-weight: 900; }
+    .step b { display: block; margin-bottom: 5px; color: var(--teal); font-size: 14px; }
+    .step span { display: block; color: var(--ink); font-size: 12px; line-height: 1.27; }
+    .branch-note { margin-top: 8px; padding: 7px 9px; background: #fff6e7; border-left: 4px solid var(--gold); font-size: 12.5px; line-height: 1.3; }
+
+    .method-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px 12px; }
+    .method { padding: 9px 10px; background: #f5fafb; border-top: 3px solid var(--teal); }
+    .method h3 { margin: 0 0 6px; color: var(--navy); font-size: 15px; }
+    .method p, .method li { font-size: 12.8px; line-height: 1.31; }
+    .formula { margin-top: 6px; padding: 6px 8px; background: white; border: 1px solid #d2e2e7; color: var(--teal); font-family: "SFMono-Regular", Consolas, monospace; font-size: 12px; }
+    .feature-band { margin-top: 9px; padding: 8px 10px; background: var(--navy); color: white; font-size: 12px; line-height: 1.35; }
+    .feature-band b { color: var(--cyan); }
+    .model-table { margin-top: 10px; }
+    .topology { margin-top: 9px; display: grid; grid-template-columns: repeat(6, 1fr); gap: 5px; align-items: stretch; }
+    .topology div { padding: 7px 5px; background: var(--ice); border-top: 3px solid var(--teal); text-align: center; font-size: 10.8px; line-height: 1.22; }
+    .topology b { display: block; color: var(--navy); margin-bottom: 2px; }
+
+    .stack { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .stack-item { padding: 9px 10px; background: var(--ice); border-left: 4px solid var(--teal); }
+    .stack-item b { display: block; color: var(--navy); font-size: 13px; margin-bottom: 3px; }
+    .stack-item span { display: block; font-size: 12px; line-height: 1.28; }
+    .contract { margin-top: 8px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 7px; }
+    .contract div { padding: 7px; text-align: center; color: white; background: var(--teal); font-size: 11.5px; line-height: 1.25; }
+
+    .explain-flow { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 12px; }
+    .explain-flow div { padding: 8px 10px; background: #f5fafb; border-bottom: 2px solid var(--line); font-size: 12.5px; line-height: 1.3; }
+    .explain-flow b { display: block; color: var(--teal); margin-bottom: 3px; }
+    .guardrail { margin-top: 8px; padding: 8px 10px; background: #fff3df; border: 1px solid #e8bc76; color: #69450d; font-size: 12.5px; line-height: 1.32; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    th { padding: 7px; text-align: left; background: var(--navy); color: white; }
+    td { padding: 7px; border-bottom: 1px solid #d8e6ea; vertical-align: top; line-height: 1.28; }
+    tr:nth-child(even) td { background: #f0f7f9; }
+    .status { font-weight: 850; color: var(--teal); }
+    .status.warn { color: #a56300; }
+
+    .plan { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .plan div { padding: 8px 10px; background: var(--ice); }
+    .plan b { display: block; margin-bottom: 3px; font-size: 13px; color: var(--navy); }
+    .plan span { font-size: 12px; line-height: 1.28; display: block; }
+    .metrics { margin-top: 8px; padding: 8px 10px; background: var(--navy); color: white; font-size: 12px; line-height: 1.35; }
+    .failure-title { margin: 10px 0 6px; color: var(--teal); font-size: 13px; font-weight: 850; text-transform: uppercase; letter-spacing: .04em; }
+    .failures { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; }
+    .failures div { padding: 8px 9px; background: #f5fafb; border-left: 3px solid var(--teal); }
+    .failures b { display: block; color: var(--navy); font-size: 12.5px; margin-bottom: 3px; }
+    .failures span { display: block; font-size: 11.5px; line-height: 1.28; }
+    .decision { margin-top: 8px; padding: 9px 11px; border: 1px solid #e1b96f; background: #fff7e9; font-size: 12px; line-height: 1.32; }
+
+    footer { flex: 0 0 5.3%; border-top: 4px solid var(--teal); padding-top: 7px; display: grid; grid-template-columns: 1fr 1.6fr; gap: 16px; }
+    .takeaway { color: var(--navy); font-size: 16px; font-weight: 800; line-height: 1.3; }
+    .refs { color: var(--muted); font-size: 9.5px; line-height: 1.28; }
+
+    @media print {
+      @page { size: A0 portrait; margin: 0; }
+      html, body { width: 841mm; height: 1189mm; padding: 0; background: white; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+      .toolbar { display: none; }
+      .poster { width: 841mm; height: 1189mm; max-width: none; padding: 20mm; border-top-width: 7mm; box-shadow: none; }
+      .kicker { font-size: 26px; }
+      h1 { max-width: 2550px; font-size: 82px; }
+      .subtitle { font-size: 37px; }
+      .authors { font-size: 26px; }
+      .hero { grid-template-columns: 1fr 320px; }
+      .brand .mark { font-size: 72px; }
+      .brand .event { font-size: 24px; }
+      .visual span { font-size: 23px; padding: 14px 17px; }
+      .section-title { padding: 14px 20px; font-size: 34px; }
+      .section-body { padding: 17px 20px 19px; }
+      p { font-size: 25px; line-height: 1.4; margin-bottom: 13px; }
+      li { font-size: 24px; line-height: 1.35; margin-bottom: 8px; }
+      .question { font-size: 24px; padding: 14px 17px; }
+      .step { min-height: 168px; padding: 17px 13px; }
+      .step:not(:last-child)::after { right: -14px; top: 57px; font-size: 42px; }
+      .step b { font-size: 24px; }
+      .step span { font-size: 20px; }
+      .branch-note { font-size: 21px; padding: 11px 14px; }
+      .method { padding: 14px 16px; }
+      .method h3 { font-size: 25px; }
+      .method p, .method li { font-size: 21px; }
+      .formula { font-size: 20px; padding: 10px 12px; }
+      .feature-band { font-size: 20px; padding: 13px 16px; }
+      .model-table { margin-top: 16px; }
+      .topology { margin-top: 14px; gap: 8px; }
+      .topology div { padding: 11px 8px; font-size: 18px; }
+      .stack-item { padding: 14px 16px; }
+      .stack-item b { font-size: 22px; }
+      .stack-item span, .explain-flow div, .guardrail { font-size: 20px; }
+      .contract div { font-size: 19px; padding: 11px; }
+      .explain-flow div { padding: 13px 15px; }
+      .guardrail { padding: 13px 15px; }
+      table { font-size: 19px; }
+      th, td { padding: 11px; }
+      .plan div { padding: 13px 15px; }
+      .plan b { font-size: 21px; }
+      .plan span, .metrics { font-size: 19px; }
+      .metrics { padding: 12px 15px; }
+      .failure-title { margin: 16px 0 9px; font-size: 21px; }
+      .failures { gap: 10px; }
+      .failures div { padding: 12px 14px; }
+      .failures b { font-size: 20px; }
+      .failures span { font-size: 18px; }
+      .decision { margin-top: 13px; padding: 13px 15px; font-size: 19px; }
+      .takeaway { font-size: 27px; }
+      .refs { font-size: 16px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="toolbar"><button onclick="window.print()">Print / Save as PDF</button><span>Vertical A0 · 841 × 1189 mm</span></div>
+  <main class="poster">
+    <header class="hero">
+      <div>
+        <div class="kicker">Planet Pioneers · AIAS+ 2026 Student Showcase</div>
+        <h1>ExoPlain: An Interactive, Explainable AI Platform for Exoplanet Discovery</h1>
+        <div class="subtitle">From TESS light curves and candidate parameters to interpretable evidence for human review</div>
+        <div class="authors"><strong>Planet Pioneers</strong> · Student research team · NASA Space Apps Challenge 2025<br>Authors: [student names] · School: [school] · Mentor: [mentor]</div>
+      </div>
+      <div class="brand"><div class="mark">EXO<br>PLAIN</div><div class="event">AI FOR SCIENCE<br>INTERACTIVE ML</div></div>
+    </header>
+
+    <section class="visual-strip" aria-label="Project visual overview">
+      <div class="visual"><img src="../../archive/education-prototype/public/transit-method-diagram-showing-planet-passing-in-f.jpg" alt="Transit method diagram"><span>Transit geometry: a planet blocks a fraction of stellar light</span></div>
+      <div class="visual"><img src="../../archive/education-prototype/public/exoplanet-light-curve-graph-showing-brightness-dip.jpg" alt="Light curve dip"><span>Light-curve evidence: depth, duration, periodicity and noise</span></div>
+      <div class="visual"><img src="../../archive/education-prototype/public/signal-to-noise-ratio-comparison-in-transit-data.jpg" alt="Signal to noise comparison"><span>Quality context: weak signals require uncertainty-aware review</span></div>
+      <div class="visual"><img src="../../archive/education-prototype/public/3d-planet-exploration-interface.jpg" alt="3D planet exploration interface"><span>Interactive layer: explore examples and inspect AI explanations</span></div>
+    </section>
+
+    <section class="main">
+      <div class="col">
+        <article class="section intro">
+          <h2 class="section-title"><span class="num">01</span> Research problem and contribution</h2>
+          <div class="section-body">
+            <p>Transit surveys produce large time-series datasets, but a brightness dip alone does not confirm a planet. Stellar variability, eclipsing binaries, instrumental noise and processing artifacts can create similar signatures. ExoPlain combines a candidate-data interface, FITS processing, experimental classifiers and a language-model explanation layer so learners can trace how an input becomes an assessment.</p>
+            <div class="question">Research question: How can an interactive AI system make exoplanet candidate evidence easier to interpret while preserving uncertainty and the distinction between screening and scientific confirmation?</div>
+          </div>
+        </article>
+
+        <article class="section pipeline">
+          <h2 class="section-title"><span class="num">02</span> End-to-end analysis pipeline</h2>
+          <div class="section-body">
+            <div class="pipeline-row">
+              <div class="step"><b>1 · Acquire</b><span>Upload a TESS/Kepler-style FITS light curve or manually enter 16 orbital, transit, stellar and sky-position fields.</span></div>
+              <div class="step"><b>2 · Clean</b><span>Select TIME and flux columns, remove NaN/Inf rows, require at least 100 valid samples and normalize flux by its median.</span></div>
+              <div class="step"><b>3 · Represent</b><span>Linearly resample to 2,048 points. Compute 37 statistical, transit, spectral, rolling, trend and autocorrelation features.</span></div>
+              <div class="step"><b>4 · Classify</b><span>Scale the feature vector and obtain Random Forest probability. CNN, LSTM and MLP scripts explore sequence-model alternatives.</span></div>
+              <div class="step"><b>5 · Explain</b><span>Convert candidate fields or labeled features into a constrained Gemini prompt and return a readable assessment with key evidence.</span></div>
+            </div>
+            <div class="branch-note"><strong>Two software paths currently coexist:</strong> manual parameter entry calls Gemini directly, while FITS upload calls the Python feature service and Random Forest path. The production goal is one auditable pipeline in which the classifier supplies evidence and the LLM explains it.</div>
+          </div>
+        </article>
+
+        <article class="section methods">
+          <h2 class="section-title"><span class="num">03</span> Data preparation and modeling methods</h2>
+          <div class="section-body">
+            <div class="method-grid">
+              <div class="method">
+                <h3>A · Labels and dataset</h3>
+                <p>Training scripts use TESS light curves and TFOPWG dispositions. The code maps CP/KP/PC to the positive class and FP/Unknown to the negative class. Project documentation reports 7,638 curves with strong class imbalance, so label provenance and candidate-level grouping must be audited before publication.</p>
+                <div class="formula">y = 1 for CP/KP/PC; y = 0 for FP/Unknown</div>
+              </div>
+              <div class="method">
+                <h3>B · Signal preprocessing</h3>
+                <p>The FITS service searches common time and flux columns, removes invalid samples, median-normalizes the flux and interpolates every curve to a fixed 2,048-point representation. Training augmentation adds small Gaussian noise, amplitude scaling and vertical shifts.</p>
+                <div class="formula">f_norm(t) = f(t) / median(f); x ∈ R²⁰⁴⁸</div>
+              </div>
+              <div class="method">
+                <h3>C · Feature-based classifier</h3>
+                <p>The Random Forest path standardizes 37 engineered features and uses a stratified 80/20 split with class-balanced trees. Features cover distribution shape, counts beyond 1σ-3σ, proxy transit depths, frequency-band power, trend fit and autocorrelation. The saved model stores feature importance and AUC metadata.</p>
+                <div class="formula">p_planet = RF(StandardScaler(φ(x))); threshold = 0.50</div>
+              </div>
+              <div class="method">
+                <h3>D · Sequence-model experiments</h3>
+                <p>The 1D CNN stacks five convolution blocks (64→128→256→512→512 channels), batch normalization, pooling and dropout before a 512→256→128→64→1 head. A compact LSTM downsamples 2,048 to 256 timesteps, uses 32 hidden units and a 64→32→1 head. An MLP provides a dense baseline.</p>
+                <div class="formula">Loss: BCEWithLogits · Adam lr=10⁻³ · weight decay=10⁻⁴</div>
+              </div>
+              <div class="method">
+                <h3>E · Training controls</h3>
+                <ul><li>Random seed 42 and 80/20 train-validation split.</li><li>ReduceLROnPlateau halves learning rate after stalled validation loss.</li><li>Early stopping and gradient clipping limit unstable training.</li><li>Dropout and augmentation reduce memorization risk.</li></ul>
+              </div>
+              <div class="method">
+                <h3>F · Transit physics represented</h3>
+                <p>Candidate inputs include orbital period, epoch, impact parameter, transit duration and depth, planet radius, equilibrium temperature, insolation, SNR, stellar temperature, surface gravity, stellar radius, magnitude and sky position.</p>
+                <div class="formula">Transit depth δ ≈ (Rₚ / R★)²</div>
+              </div>
+            </div>
+            <div class="feature-band"><b>37-feature vector:</b> mean, standard deviation, extrema, quantiles; dip/peak counts at multiple σ thresholds; three depth proxies; variance, RMSE, skewness, kurtosis; dominant frequency/power, spectral centroid and band powers; rolling statistics; linear trend and R²; autocorrelation at lags 1/5/10 and periodicity strength.</div>
+            <table class="model-table">
+              <thead><tr><th>Model</th><th>Input representation</th><th>Purpose</th><th>Main validation risk</th></tr></thead>
+              <tbody>
+                <tr><td><strong>Random Forest</strong></td><td>37 scaled engineered features</td><td>Primary FITS-service classifier and feature-importance baseline</td><td>Feature leakage or target duplication can inflate AUC</td></tr>
+                <tr><td><strong>1D CNN</strong></td><td>Raw 2,048-point normalized sequence</td><td>Learn local transit morphology and multiscale temporal patterns</td><td>Imbalance may favor the majority positive class</td></tr>
+                <tr><td><strong>LSTM</strong></td><td>256-step average-pooled sequence</td><td>Test whether recurrent state captures longer temporal context</td><td>Downsampling may suppress short or shallow events</td></tr>
+                <tr><td><strong>MLP</strong></td><td>Flattened 2,048-point sequence</td><td>Dense neural baseline without explicit temporal structure</td><td>High parameter count and weak shift invariance</td></tr>
+              </tbody>
+            </table>
+            <div class="topology">
+              <div><b>Input</b>1 × 2048 flux</div><div><b>Conv 7</b>64 channels</div><div><b>Conv 5</b>128 channels</div><div><b>Conv 3</b>256 channels</div><div><b>Conv 3 × 2</b>512 channels</div><div><b>Global pool + head</b>512→256→128→64→1</div>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <div class="col">
+        <article class="section architecture">
+          <h2 class="section-title"><span class="num">04</span> System architecture and data contracts</h2>
+          <div class="section-body">
+            <div class="stack">
+              <div class="stack-item"><b>Next.js / TypeScript client</b><span>Manual candidate form, FITS upload, 3D galaxy exploration and results interface.</span></div>
+              <div class="stack-item"><b>Next.js API routes</b><span>Validate requests, format candidate measurements and call the Gemini 2.5 Pro endpoint.</span></div>
+              <div class="stack-item"><b>Python / Flask service</b><span>Parse FITS tables, normalize and resample flux, compute features, scale them and run the Random Forest.</span></div>
+              <div class="stack-item"><b>Model artifacts</b><span>Serialized scikit-learn RF/scaler plus PyTorch CNN, LSTM and MLP checkpoints used in experiments.</span></div>
+            </div>
+            <div class="contract"><div>INPUT<br><b>FITS or 16 fields</b></div><div>MODEL EVIDENCE<br><b>37 features + p</b></div><div>OUTPUT<br><b>assessment + rationale</b></div></div>
+          </div>
+        </article>
+
+        <article class="section explain">
+          <h2 class="section-title"><span class="num">05</span> Explainability design</h2>
+          <div class="section-body">
+            <div class="explain-flow">
+              <div><b>Evidence selection</b>For manual entry, the prompt contains all submitted measurements. For FITS, the service emits labeled engineered features and Random Forest probability.</div>
+              <div><b>Structured generation</b>The API asks Gemini for a Boolean assessment and five important features with High/Medium/Low relevance descriptions.</div>
+              <div><b>Human-readable result</b>The interface translates model evidence into plain language so users can connect the classification to transit depth, periodicity, stellar context and data quality.</div>
+              <div><b>Intended role</b>The explanation supports learning and candidate triage. It does not replace follow-up observation, vetting reports or expert confirmation.</div>
+            </div>
+            <div class="guardrail"><strong>Known implementation gap:</strong> the manual Gemini route currently maps answers to fixed 85%/15% confidence and defaults missing answers toward “true.” The upload route can return randomized fallback features if the Python service fails. Both behaviors must be removed or visibly labeled before scientific use.</div>
+          </div>
+        </article>
+
+        <article class="section evidence">
+          <h2 class="section-title"><span class="num">06</span> Current evidence and reproducibility status</h2>
+          <div class="section-body">
+            <table>
+              <thead><tr><th>Claim or artifact</th><th>Evidence in repository</th><th>Status</th></tr></thead>
+              <tbody>
+                <tr><td>Interactive system</td><td>Working UI routes for manual input, FITS upload, results and 3D exploration.</td><td class="status">Implemented</td></tr>
+                <tr><td>FITS feature pipeline</td><td>Column discovery, cleaning, median normalization, 2,048-point interpolation and 37-feature extraction.</td><td class="status">Implemented</td></tr>
+                <tr><td>Model experiments</td><td>Random Forest, 1D CNN, LSTM and MLP code plus serialized checkpoints.</td><td class="status">Implemented</td></tr>
+                <tr><td>Reported training scale</td><td>README reports 7,638 TESS curves and 95.4% positive labels.</td><td class="status warn">Needs provenance audit</td></tr>
+                <tr><td>Reported performance</td><td>README reports CNN validation loss 0.0597; saved RF workflow reports AUC metadata.</td><td class="status warn">Not independently reproduced</td></tr>
+                <tr><td>Complete system accuracy</td><td>No candidate-grouped held-out test, external set or calibration analysis is documented.</td><td class="status warn">Not established</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </article>
+
+        <article class="section validation">
+          <h2 class="section-title"><span class="num">07</span> Validation plan and next technical milestones</h2>
+          <div class="section-body">
+            <div class="plan">
+              <div><b>1 · Dataset audit</b><span>Record TIC identifiers, sectors, label source and download date. Resolve Unknown labels and quantify duplicates.</span></div>
+              <div><b>2 · Leakage-safe split</b><span>Group observations by target star before splitting so repeat sectors from one object cannot enter both train and test.</span></div>
+              <div><b>3 · Baselines and ablations</b><span>Compare RF, CNN, LSTM and MLP against class-frequency and simple depth/period rules. Remove feature families one at a time.</span></div>
+              <div><b>4 · Calibration</b><span>Report reliability curves, Brier score and threshold tradeoffs. Replace fixed confidence with measured probabilities.</span></div>
+              <div><b>5 · External validation</b><span>Test on a later TESS sector or a separately curated candidate set, preserving untouched labels until final evaluation.</span></div>
+              <div><b>6 · Explanation study</b><span>Measure whether students can identify the decisive features, uncertainty and need for follow-up more accurately after using ExoPlain.</span></div>
+            </div>
+            <div class="metrics"><strong style="color:#7fe9f1">Required reporting:</strong> sample counts by class · target-grouped train/validation/test split · ROC-AUC and PR-AUC · precision, recall and F1 · confusion matrix · calibration error and Brier score · inference latency · failure-mode examples.</div>
+            <div class="failure-title">Failure modes that the evaluation must isolate</div>
+            <div class="failures">
+              <div><b>Eclipsing binaries</b><span>Deep V-shaped or alternating events can mimic planetary transits.</span></div>
+              <div><b>Stellar variability</b><span>Spots, pulsations and flares change brightness without an orbiting planet.</span></div>
+              <div><b>Instrument artifacts</b><span>Momentum dumps, gaps and background changes can create false structure.</span></div>
+              <div><b>Low-SNR transits</b><span>Shallow events test sensitivity, calibration and threshold stability.</span></div>
+              <div><b>Distribution shift</b><span>Different sectors, cadences and stellar populations may alter model behavior.</span></div>
+              <div><b>Missing metadata</b><span>Incomplete stellar context can weaken both classification and explanation.</span></div>
+            </div>
+            <div class="decision"><strong>Decision rule for the final system:</strong> label outputs as candidate-screening evidence, publish calibrated probability with uncertainty, expose whether the result came from the classifier or an unavailable-service fallback, and require human review before any confirmation claim.</div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <footer>
+      <div class="takeaway"><span class="kicker">Take-home message</span><br>ExoPlain connects raw exoplanet evidence, machine-learning predictions and readable explanations in one learning workflow. The next priority is rigorous validation, calibrated uncertainty and removal of simulated fallbacks.</div>
+      <div class="refs"><strong>Project sources:</strong> ExoPlain Next.js application and API routes; ExoplanetWebsiteFiles/web_fits_feature_server.py; random_forest_exoplanet_model.py; cnn1d_exoplanet_model.py; lstm_exoplanet_model.py; train_python_model.py; project README. <strong>Scientific context:</strong> NASA Exoplanet Archive; TESS mission light curves; TFOPWG candidate dispositions. <strong>Disclosure:</strong> architecture descriptions and reported model values come from the project repository and have not yet been independently reproduced. Project page: spaceappschallenge.org/2025/find-a-team/planet-pioneers2/</div>
+    </footer>
+  </main>
+</body>
+</html>
