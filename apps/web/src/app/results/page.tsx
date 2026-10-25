@@ -13,6 +13,7 @@ import { buildPollinationsPlanetImageUrl } from "@/components/planet-image-utils
 import type { AnalysisResult } from "@/types/analysis"
 import { analyzePlanetData } from "@/lib/analysis/demo"
 import { geminiFeatureToRow } from "@/lib/analysis/format-gemini-feature"
+import { loadResultsSession } from "@/lib/results-session"
 
 function normalizeAnalysisResult(analysis: AnalysisResult): AnalysisResult {
   if (analysis.topFeatures?.length && !analysis.geminiAnalysis?.most_important_features?.length) {
@@ -37,6 +38,18 @@ function ResultsContent() {
   const [geminiPrompt, setGeminiPrompt] = useState<string | null>(null)
 
   useEffect(() => {
+    const session = loadResultsSession()
+    if (session) {
+      if (session.geminiPrompt) setGeminiPrompt(session.geminiPrompt)
+      const analysisResult = normalizeAnalysisResult(session.analysisResult)
+      setResult({
+        ...analysisResult,
+        planetData: session.planetData,
+        source: session.source,
+      })
+      return
+    }
+
     const planetDataStr = searchParams.get("planetData")
     const analysisResultStr = searchParams.get("analysisResult")
     const source = searchParams.get("source")
@@ -49,9 +62,8 @@ function ResultsContent() {
 
     if (planetDataStr) {
       const planetData = JSON.parse(planetDataStr)
-      
+
       if (analysisResultStr) {
-        // Use real Gemini analysis
         const analysisResult = normalizeAnalysisResult(JSON.parse(analysisResultStr) as AnalysisResult)
         setResult({
           ...analysisResult,
@@ -59,7 +71,6 @@ function ResultsContent() {
           source: source || "unknown",
         })
       } else {
-        // Fallback to mock analysis
         const mockAnalysis = analyzePlanetData(planetData, source || "unknown")
         if (error) {
           mockAnalysis.explanation += ` (${error})`

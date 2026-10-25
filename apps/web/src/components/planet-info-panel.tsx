@@ -5,9 +5,11 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { X, Search, Telescope } from "lucide-react"
 import type { PlanetData } from "@/types/planet"
-import { siteUrl, apiUrl, isStaticDemo } from "@/lib/deployment"
+import { isStaticDemo } from "@/lib/deployment"
 import { analyzePlanetData } from "@/lib/analysis/demo"
 import { catalogPlanetToFormData } from "@/lib/planet-to-form"
+import { fetchPlanetAnalysis } from "@/lib/analyze-planet-client"
+import { navigateToResults } from "@/lib/results-session"
 
 type PlanetInfoPanelProps = {
   planet: PlanetData
@@ -28,43 +30,38 @@ export function PlanetInfoPanel({ planet, onClose }: PlanetInfoPanelProps) {
 
     try {
       if (!isStaticDemo) {
-        const response = await fetch(apiUrl("/api/analyze-planet"), {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            planetData: planetFormData,
-            catalogFeatures: planet.features,
-            planetName: planet.name,
-          }),
+        const analysisResult = await fetchPlanetAnalysis({
+          planetData: planetFormData,
+          catalogFeatures: planet.features,
+          planetName: planet.name,
         })
-        if (response.ok) {
-          const analysisResult = await response.json()
-          const params = new URLSearchParams({
-            planetData: JSON.stringify(planetFormData),
-            analysisResult: JSON.stringify(analysisResult),
-            geminiPrompt: planet.gemini_prompt,
-            source: "existing",
-          })
-          window.location.href = siteUrl(`/results/?${params.toString()}`)
-          return
-        }
+        navigateToResults({
+          planetData: planetFormData,
+          analysisResult,
+          source: "existing",
+          geminiPrompt: planet.gemini_prompt,
+        })
+        return
       }
-    } catch {
-      // fall through to demonstration results
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "AI analysis failed"
+      if (!isStaticDemo) {
+        alert(
+          `Gemini analysis could not complete.\n\n${message}\n\nWait a minute and try again. If this keeps happening, check your API key on Cloudflare.`,
+        )
+        setIsDetecting(false)
+        return
+      }
     }
-
-    await new Promise((resolve) => setTimeout(resolve, 2000))
 
     const analysisResult = analyzePlanetData(planet, "existing", planet.name)
     analysisResult.planetData = planetFormData
-
-    const params = new URLSearchParams({
-      planetData: JSON.stringify(planetFormData),
-      analysisResult: JSON.stringify(analysisResult),
-      geminiPrompt: planet.gemini_prompt,
+    navigateToResults({
+      planetData: planetFormData,
+      analysisResult,
       source: "existing",
+      geminiPrompt: planet.gemini_prompt,
     })
-    window.location.href = siteUrl(`/results/?${params.toString()}`)
   }
 
   return (
@@ -98,8 +95,7 @@ export function PlanetInfoPanel({ planet, onClose }: PlanetInfoPanelProps) {
             </div>
             <h3 className="text-xl font-bold text-white mb-3">AI Detection Required</h3>
             <p className="text-cyan-200 max-w-sm text-sm mb-8">
-              Perform an AI-powered detection scan to analyze this exoplanet and open the same results view as
-              Predict New Data.
+              Run a Gemini-powered scan (may take up to 2 minutes). Results open on the same page as Predict New Data.
             </p>
 
             <Button

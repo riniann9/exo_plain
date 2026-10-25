@@ -1,6 +1,8 @@
 "use client"
 
-import { siteUrl, apiUrl, isStaticDemo } from "@/lib/deployment"
+import { apiUrl, isStaticDemo } from "@/lib/deployment"
+import { fetchPlanetAnalysis } from "@/lib/analyze-planet-client"
+import { navigateToResults } from "@/lib/results-session"
 
 import type React from "react"
 
@@ -114,53 +116,30 @@ export default function NewPage() {
     setIsAnalyzing(true)
     if (isStaticDemo) {
       const analysisResult = analyzePlanetData(formData, "new", "Custom prediction")
-      const params = new URLSearchParams({
-        planetData: JSON.stringify(formData),
-        analysisResult: JSON.stringify(analysisResult),
+      navigateToResults({
+        planetData: formData,
+        analysisResult,
         source: "new",
       })
-      window.location.href = siteUrl(`/results/?${params.toString()}`)
       return
     }
 
     try {
-      // Call Gemini API for real analysis
-      const response = await fetch(apiUrl('/api/analyze-planet'), {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          planetData: formData
-        })
+      const analysisResult = await fetchPlanetAnalysis({
+        planetData: formData,
+        planetName: "Custom prediction",
       })
-
-      if (!response.ok) {
-        throw new Error('Failed to analyze planet data')
-      }
-
-      const analysisResult = await response.json()
-
-      // Navigate to results with analysis data
-      const params = new URLSearchParams({
-        planetData: JSON.stringify(formData),
-        analysisResult: JSON.stringify(analysisResult),
+      navigateToResults({
+        planetData: formData,
+        analysisResult,
         source: "new",
       })
-      window.location.href = siteUrl(`/results/?${params.toString()}`)
     } catch (error) {
-      console.error('Error analyzing planet:', error)
-      // Fallback to mock analysis if API fails
-      await new Promise((resolve) => setTimeout(resolve, 2000))
-      
-      const analysisResult = analyzePlanetData(formData, "new", "Custom prediction")
-      const params = new URLSearchParams({
-        planetData: JSON.stringify(formData),
-        analysisResult: JSON.stringify(analysisResult),
-        source: "new",
-        error: "API analysis failed, showing demonstration results",
-      })
-      window.location.href = siteUrl(`/results/?${params.toString()}`)
+      console.error("Error analyzing planet:", error)
+      alert(
+        `Gemini analysis failed: ${error instanceof Error ? error.message : "Unknown error"}. Try again in a minute.`,
+      )
+      setIsAnalyzing(false)
     }
   }
 
